@@ -33,6 +33,7 @@ class _Sign_in_screenState extends State<Sign_in_screen> {
            textColor: Colors.white,
            fontSize: 16.0
        );
+       Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

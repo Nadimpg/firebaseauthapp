@@ -4,6 +4,7 @@ import 'package:firebase_auth_app/auth/sign_in/sign_in_screen.dart';
 import 'package:firebase_auth_app/home_screen.dart';
 import 'package:firebase_auth_app/model/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -322,5 +323,14 @@ class _SignUpState extends State<SignUp> {
     await fireStore.collection("users").doc(user.uid).set(userModel.toMap());
 
     Navigator.push(context, MaterialPageRoute(builder: (_) => const Sign_in_screen()));
+    Fluttertoast.showToast(
+        msg: "Successful",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 }
