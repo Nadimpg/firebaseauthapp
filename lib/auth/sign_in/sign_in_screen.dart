@@ -1,8 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_app/auth/sign_up/sign_up_screen.dart';
+import 'package:firebase_auth_app/crud/crud_screen.dart';
+import 'package:firebase_auth_app/dataget/user_screen.dart';
 import 'package:firebase_auth_app/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import '../phone_auth/phone_auth_screen.dart';
 
 class Sign_in_screen extends StatefulWidget {
   const Sign_in_screen({super.key});
@@ -12,12 +18,15 @@ class Sign_in_screen extends StatefulWidget {
 }
 
 class _Sign_in_screenState extends State<Sign_in_screen> {
+
   bool isClicked=false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final fireStore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
+
+  /// SignIn Auth
   signin(String email,String pass)async{
     try {
        await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -43,7 +52,70 @@ class _Sign_in_screenState extends State<Sign_in_screen> {
       }
     }
   }
+
+  ///Google Auth
+
+  late GoogleSignInAccount? googleUser;
+  var googleSignIn = GoogleSignIn();
+  bool isLoading=false;
+
+  Future<User?> signInWithGoogle() async {
+
+    try{
+      // Trigger the authentication flow
+      googleUser = await googleSignIn.signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      final User? user = (await FirebaseAuth.instance.signInWithCredential(credential)).user;
+
+
+
+      await fireStore.collection('users').doc(user!.uid).set({
+        'email':user.email,
+        'phone num':user.phoneNumber,
+        "username" : user.displayName,
+      });
+
+      return user;
+    } catch(e){
+      print("error");
+    }
+  }
+  void handleGoogleLogin(context) async{
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(child: CircularProgressIndicator(color: Colors.green));
+      },
+    );
+
+    User? user = await signInWithGoogle();
+    if(user != null){
+      Navigator.push(context, MaterialPageRoute(builder: (_)=> const HomeScreen()));
+    }else{
+      Navigator.pop(context);
+    }
+
+  }
+
+  signOut()async{
+    var result=await FirebaseAuth.instance.signOut();
+    return result;
+  }
   @override
+  void initState() {
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body:  LayoutBuilder(
@@ -56,7 +128,6 @@ class _Sign_in_screenState extends State<Sign_in_screen> {
                     const SizedBox(height: 108,),
                     Form(
                         key: _formKey,
-
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -181,7 +252,8 @@ class _Sign_in_screenState extends State<Sign_in_screen> {
                                 }
                               },
                             ),
-                            const SizedBox(height: 24),
+
+                            const SizedBox(height: 16),
                             SizedBox(
                               height: 56,
                               width: MediaQuery.of(context).size.width,
@@ -198,6 +270,42 @@ class _Sign_in_screenState extends State<Sign_in_screen> {
                                     style: TextStyle(color: Color(0xffFFFFFF),fontSize: 18,fontWeight: FontWeight.w500),
                                   )),
 
+                            ),
+                            const SizedBox(height: 16),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: TextButton(onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (_)=>SignUp()));                              }, child: Text('Sign up')),
+                            ),
+                            SizedBox(height: 24,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                    onTap: ()=> handleGoogleLogin(context),
+                                    child: Image.asset('assets/image/google.png',height: 50,)),
+                                const SizedBox(width: 20,),
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (_)=>UserScreen()));
+                                  },
+                                    child: Image.asset('assets/image/apple.png',height: 50,)),
+                                SizedBox(width: 20,),
+                                InkWell(
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (_)=>PhoneAuth()));
+                                    },
+                                    child: Icon(Icons.phone,size: 35,)),
+                              ],
+                            ),
+                            SizedBox(height: 20,),
+                            Center(
+                              child: GestureDetector(
+                                onTap:(){
+                                  Navigator.push(context, MaterialPageRoute(builder: (_)=>CrudScreen()));
+                                } ,
+                                child: Text('crud screen',style: TextStyle(fontSize: 22),),
+                              ),
                             )
                           ],
                         )

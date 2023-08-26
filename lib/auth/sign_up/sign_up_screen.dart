@@ -296,7 +296,8 @@ class _SignUpState extends State<SignUp> {
                                     style: TextStyle(color: Color(0xffFFFFFF),fontSize: 18,fontWeight: FontWeight.w500),
                                   )),
 
-                            )
+                            ),
+
                           ],
                         )
                     )
