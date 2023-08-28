@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth_app/crud/info_screen.dart';
+import 'package:firebase_auth_app/crud/information_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -134,7 +136,7 @@ class _CrudScreenState extends State<CrudScreen> {
                 children: [
                   TextField(
                     controller: _nameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       prefixIcon: Icon(
                         Icons.title_outlined,
                       ),
@@ -222,6 +224,15 @@ class _CrudScreenState extends State<CrudScreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
+      appBar: AppBar(
+
+        title: Text('Crud'),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (_)=>InformationScreen()));
+          }, icon: Icon(Icons.forward)),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => writeData(context),
         child: Icon(

@@ -306,7 +306,7 @@ class _Sign_in_screenState extends State<Sign_in_screen> {
                                 } ,
                                 child: Text('crud screen',style: TextStyle(fontSize: 22),),
                               ),
-                            )
+                            ),
                           ],
                         )
                     )
